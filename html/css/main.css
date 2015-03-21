@@ -4,7 +4,7 @@ ul.events {
     margin: 0;
 }
 
-.msg, .info {
+.msg, .disconnect {
     cursor: default;
     border-bottom: 1px solid #ccc;
     box-shadow: 0 1px 0 0 white;
@@ -17,7 +17,7 @@ ul.events {
 }
 
 
-.info {
+.disconnect {
     color: #888;
     font-style: italic;
 }

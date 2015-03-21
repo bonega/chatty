@@ -1,0 +1,23 @@
+ul.events {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.msg, .info {
+    cursor: default;
+    border-bottom: 1px solid #ccc;
+    box-shadow: 0 1px 0 0 white;
+    overflow: auto;
+    padding: 2px 0 2px 130px;
+    line-height: 24px;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    /* background-color: gray; */
+}
+
+
+.info {
+    color: #888;
+    font-style: italic;
+}

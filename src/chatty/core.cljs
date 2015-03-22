@@ -12,3 +12,4 @@
                   (js/document.getElementById "app")))
 
 (dispatch [:initialize])
+(dispatch [:login "bonega"])

@@ -58,3 +58,9 @@
  (fn [db [user timestamp]]
    (update-in db [:events] (comp vec conj)
               {:timestamp timestamp :value user :event-type :disconnect})))
+
+(register-handler
+ :login
+ standard-middlewares
+ (fn [db [user timestamp]]
+   (assoc (update-in db [:users] (comp vec conj) user) :user user)))

@@ -28,7 +28,10 @@
 (defmulti render-event :event-type)
 
 (defmethod render-event :msg [event]
-  [:li.msg (:value event)])
+  (let [{:keys [user text]} (:value event)]
+    [:li.msg
+     [:div.heading user]
+     [:p text]]))
 
 (defmethod render-event :disconnect [event]
   [:li.disconnect (str (:value event) " has disconnected")])

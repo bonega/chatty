@@ -18,8 +18,10 @@
                              [log-ex debug trim-v]
                              debug)])
 
-(defonce initial-state {:users ["bonega"] :events [{:timestamp 0 :value "first message" :event-type :msg}
-                                                 {:timestamp 1 :value "bonega" :event-type :disconnect}] :input-text ""})
+(defonce initial-state {:users ["bonega"]
+                        :events [{:timestamp 0 :value {:user "bonega" :text "first message"} :event-type :msg}
+                                 {:timestamp 1 :value "bonega" :event-type :disconnect}]
+                        :input-text ""})
 
 (register-handler
   :initialize
@@ -31,8 +33,10 @@
  :send-message
  standard-middlewares
  (fn [db [timestamp]]
-   (assoc (update-in db [:events] (comp vec conj) {:timestamp timestamp :value (:input-text db) :event-type :msg})
-             :input-text "")))
+   (let [msg {:user (:user db) :text (:input-text db) }]
+     (-> db (update-in [:events] (comp vec conj)
+                       {:timestamp timestamp :value msg :event-type :msg})
+         (assoc :input-text "")))))
 
 (register-handler
  :add-event

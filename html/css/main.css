@@ -21,3 +21,7 @@ ul.events {
     color: #888;
     font-style: italic;
 }
+
+div.heading {
+    font-weight: bold;
+}

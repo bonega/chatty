@@ -25,9 +25,13 @@
                 :on-change #(dispatch [:change-input (-> % .-target .-value)])}]])))
 
 
+(defn scroll-to-end-of-events []
+  (let [element (js/document.getElementById "events-pane")]
+    (set! (.-scrollTop element) (.-scrollHeight element))))
+
 (defmulti render-event :event-type)
 
-(defmethod render-event :msg [event]
+(defmethod render-event "msg" [event]
   (let [{:keys [user text]} (:value event)]
     [:li.msg
      [:div.heading user]
@@ -40,9 +44,8 @@
   (let [events (subscribe [:events])]
     (fn []
       [:div.event-area
-       [:div
-        [:ul.events
-         (map render-event @events)]]
+       [:ul#events-pane.events
+         (map render-event @events)]
        [:div.event-box
         [input-component]
         [:button {:on-click send-message} "send"]

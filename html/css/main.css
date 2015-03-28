@@ -25,3 +25,9 @@ ul.events {
 div.heading {
     font-weight: bold;
 }
+
+ul.events {
+    width: 500px;
+    height: 800px;
+    overflow-y: scroll;
+}

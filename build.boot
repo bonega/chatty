@@ -11,6 +11,7 @@
                   [org.clojure/clojurescript "0.0-2814"]
                   [re-frame "0.2.0"]
                   [reagent "0.5.0-alpha3"]
+                  [matchbox "0.0.5-SNAPSHOT"]
                   [com.taoensso/sente "1.3.0"]
                   [org.clojure/core.async "0.1.346.0-17112a-alpha"]])
 

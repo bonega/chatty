@@ -1,7 +1,8 @@
 (ns chatty.handlers
   (:require [re-frame.core :refer [register-handler
                                    debug
-                                   trim-v]]))
+                                   trim-v]]
+            [chatty.server]))
 
 (defn log-ex [handler]
   (fn log-ex-handler
@@ -16,11 +17,10 @@
 
 (def standard-middlewares [(if js/goog.DEBUG
                              [log-ex debug trim-v]
-                             debug)])
+                             log-ex debug trim-v)])
 
-(defonce initial-state {:users ["bonega"]
-                        :events [{:timestamp 0 :value {:user "bonega" :text "first message"} :event-type :msg}
-                                 {:timestamp 1 :value "bonega" :event-type :disconnect}]
+(defonce initial-state {:users []
+                        :events []
                         :input-text ""})
 
 (register-handler
@@ -33,10 +33,16 @@
  :send-message
  standard-middlewares
  (fn [db [timestamp]]
-   (let [msg {:user (:user db) :text (:input-text db) }]
-     (-> db (update-in [:events] (comp vec conj)
-                       {:timestamp timestamp :value msg :event-type :msg})
-         (assoc :input-text "")))))
+   (let [msg {:user (:user db) :text (:input-text db) }
+         event {:timestamp timestamp :value msg :event-type "msg"}]
+     (chatty.server/add-event event)
+     (assoc db :input-text ""))))
+
+(register-handler
+ :add-events
+ standard-middlewares
+ (fn [db [events]]
+   (update-in db [:events] #(into % events))))
 
 (register-handler
  :add-event

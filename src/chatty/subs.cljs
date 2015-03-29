@@ -17,3 +17,12 @@
  (fn [db _]
    (reaction (:input-text @db))))
 
+(register-sub
+ :user
+ (fn [db _]
+   (reaction (:user @db))))
+
+(register-sub
+ :time
+ (fn [db _]
+   (reaction (:time @db))))

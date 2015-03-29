@@ -1,6 +1,7 @@
 (ns chatty.views
   (:require [re-frame.core :refer [dispatch
-                                   subscribe]]))
+                                   subscribe]]
+            [chatty.utils :refer [human-interval]]))
 
 (defn user-component []
   (let [users (subscribe [:users])]
@@ -32,10 +33,15 @@
 (defmulti render-event :event-type)
 
 (defmethod render-event "msg" [event]
-  (let [{:keys [user text]} (:value event)]
-    [:li.msg
-     [:div.heading user]
-     [:p text]]))
+  (let [{:keys [user text]} (:value event)
+        current-user (subscribe [:user])
+        time (subscribe [:time])]
+    (fn []
+      [:li.msg
+       [:div.chat-header
+        [:div.heading user]
+        [:div.time (human-interval (:timestamp event) @time)]]
+       [:p text]])))
 
 (defmethod render-event :disconnect [event]
   [:li.disconnect (str (:value event) " has disconnected")])
@@ -45,11 +51,12 @@
     (fn []
       [:div.event-area
        [:ul#events-pane.events
-         (map render-event @events)]
+        (for [event @events]
+          [render-event event])
        [:div.event-box
         [input-component]
         [:button {:on-click send-message} "send"]
-        ]])))
+        ]]])))
 
 
 (defn main-component []

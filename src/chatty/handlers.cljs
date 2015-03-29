@@ -21,7 +21,8 @@
 
 (defonce initial-state {:users []
                         :events []
-                        :input-text ""})
+                        :input-text ""
+                        :time (.getTime (js/Date.))})
 
 (register-handler
   :initialize
@@ -55,6 +56,12 @@
  standard-middlewares
  (fn [db [user]]
    (update-in db [:users] (comp vec conj) user)))
+
+(register-handler
+ :update-time
+ standard-middlewares
+ (fn [db [time]]
+   (assoc db :time time)))
 
 (register-handler
  :change-input

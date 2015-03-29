@@ -11,5 +11,6 @@
 (dispatch-sync [:add-event {:timestamp 1 :value "bonega" :event-type :disconnect}])
 
 (defn ^export main []
+  (js/setInterval #(dispatch [:update-time (.getTime (js/Date.))]) 10000)
   (reagent/render [chatty.views/main-component]
                   (js/document.getElementById "app")))

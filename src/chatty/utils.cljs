@@ -31,3 +31,6 @@
       (> (clt/in-minutes interval) 59) (str (clt/in-hours interval) " hours ago")
       (> (clt/in-seconds interval) 59) (str (clt/in-minutes interval) " minutes ago")
       :default "now")))
+
+(defn starts-with? [s1 s2]
+  (= s2 (subs s1 0 (count s2))))

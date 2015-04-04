@@ -8,6 +8,9 @@
 
 (dispatch-sync [:initialize])
 (dispatch-sync [:login "boieaga"])
+(dispatch-sync [:login "bonega"])
+(dispatch-sync [:login "kawk"])
+(dispatch-sync [:login "kawc"])
 (dispatch-sync [:add-event {:timestamp 1 :value "bonega" :event-type :disconnect}])
 
 (defn ^export main []

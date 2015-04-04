@@ -59,7 +59,7 @@
 
 (register-handler
  :update-time
- standard-middlewares
+ trim-v
  (fn [db [time]]
    (assoc db :time time)))
 

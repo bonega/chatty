@@ -31,3 +31,15 @@ ul.events {
     height: 800px;
     overflow-y: scroll;
 }
+
+div.complete-wrapper {
+    position: relative;
+    display: block;
+}
+
+ul#complete-list {
+    position: absolute;
+    /* left: 43px; */
+    bottom: 40px;
+    top: initial;
+}

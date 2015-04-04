@@ -1,14 +1,14 @@
 (ns chatty.views
   (:require [re-frame.core :refer [dispatch
                                    subscribe]]
-            [chatty.utils :refer [human-interval]]))
+            [reagent.core :as reagent]
+            [chatty.utils :refer [human-interval re-pos starts-with?]]))
 
-(defn user-component []
-  (let [users (subscribe [:users])]
-    (fn []
-      [:div.user-list
-       [:ul
-        (map (partial vector :li.user) @users)]])))
+(defn user-component [users]
+  [:div.user-list
+   [:ul
+    (for [user users]
+      ^{:key user} [:li.user user])]])
 
 
 (defn send-message []
@@ -16,14 +16,38 @@
     (when (pos? (count @text))
       (dispatch [:send-message (.getTime (js/Date.))]))))
 
+(defn complete-user-list-component [pos comp-text text users]
+  (let [f-users (filter #(starts-with? % (subs comp-text 1)) users)
+        match-len (-> comp-text (subs 1) count)
+        new-text-fn #(str text (subs % match-len) " ")]
+    (for [user f-users]
+      ^{:key user} [:li {:on-click #(dispatch [:change-input (new-text-fn user)])} user])))
+
+(defn complete-user-component [users text]
+  (let [[[pos comp-text]] (re-pos #"\B@\S*$" text)]
+    [:ul#complete-list {:style {:left (str (* 6 pos) "px")}}
+     (when pos
+       (complete-user-list-component pos comp-text text users))]))
+
+(defn message-field-component []
+  (let [text (subscribe [:input-text])
+        users (subscribe [:users])]
+    (reagent/create-class
+     {:component-did-update #(.focus (reagent/dom-node %))
+      :reagent-render
+      (fn []
+        [:input#message-area {:type "text"
+                                :value @text
+                                :on-change #(dispatch [:change-input (-> % .-target .-value)])
+                                :onKeyUp (fn [e] (when (= 13 (.. e -keyCode)) (send-message)))}])})))
+
 (defn input-component []
-  (let [text (subscribe [:input-text])]
+  (let [text (subscribe [:input-text])
+        users (subscribe [:users])]
     (fn []
-      [:div.input {:onKeyUp (fn [e] (when (= 13 (.. e -keyCode)) (send-message)))}
-       ""
-       [:input {:type "text"
-                :value @text
-                :on-change #(dispatch [:change-input (-> % .-target .-value)])}]])))
+      [:div.complete-wrapper
+       (complete-user-component @users @text)
+       [message-field-component]])))
 
 
 (defn scroll-to-end-of-events []
@@ -34,9 +58,8 @@
 
 (defmethod render-event "msg" [event]
   (let [{:keys [user text]} (:value event)
-        current-user (subscribe [:user])
         time (subscribe [:time])]
-    (fn []
+    (fn [event]
       [:li.msg
        [:div.chat-header
         [:div.heading user]
@@ -52,14 +75,15 @@
       [:div.event-area
        [:ul#events-pane.events
         (for [event @events]
-          [render-event event])
+          ^{:key (:timestamp event)} [render-event event])]
        [:div.event-box
         [input-component]
-        [:button {:on-click send-message} "send"]
-        ]]])))
+        [:button {:on-click send-message} "send"]]])))
 
 
 (defn main-component []
-  [:div
-   [event-component]
-   [user-component]])
+  (let [users (subscribe [:users])]
+    (fn []
+      [:div
+       [event-component]
+       (user-component @users)])))

@@ -30,6 +30,7 @@
   []
   (comp (serve :dir "target")
         (watch)
+        (speak)
         (cljs-repl)
         (reload :on-jsload 'chatty.core/main)
         (cljs :source-map true

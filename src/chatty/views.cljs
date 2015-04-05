@@ -1,7 +1,7 @@
 (ns chatty.views
   (:require [re-frame.core :refer [dispatch
                                    subscribe]]
-            [reagent.core :as reagent]
+            [reagent.core :as reagent :refer [atom]]
             [chatty.utils :refer [human-interval re-pos starts-with?]]))
 
 (defn user-component [users]
@@ -26,6 +26,7 @@
 (defn complete-user-component [users text]
   (let [[[pos comp-text]] (re-pos #"\B@\S*$" text)]
     [:ul#complete-list {:style {:left (str (* 6 pos) "px")}}
+     nil
      (when pos
        (complete-user-list-component pos comp-text text users))]))
 
@@ -46,13 +47,9 @@
         users (subscribe [:users])]
     (fn []
       [:div.complete-wrapper
-       (complete-user-component @users @text)
+       [complete-user-component @users @text]
        [message-field-component]])))
 
-
-(defn scroll-to-end-of-events []
-  (let [element (js/document.getElementById "events-pane")]
-    (set! (.-scrollTop element) (.-scrollHeight element))))
 
 (defmulti render-event :event-type)
 
@@ -69,16 +66,30 @@
 (defmethod render-event :disconnect [event]
   [:li.disconnect (str (:value event) " has disconnected")])
 
+(defn events-pane []
+  (let [events (subscribe [:events])
+        at-bottom (atom true)]
+    (reagent/create-class
+     {:component-did-update #(let [element (reagent/dom-node %)]
+                               (when @at-bottom
+                                 (set! (.-scrollTop element) (.-scrollHeight element))))
+      :component-will-update #(let [e (reagent/dom-node %)
+                                    to-top (.-scrollTop e)
+                                    height (.-scrollHeight e)
+                                    offset-height (.-offsetHeight e)
+                                    to-bottom (- height (+ offset-height to-top))]
+                                (reset! at-bottom (zero? to-bottom)))
+      :reagent-render (fn []
+                        [:ul#events-pane.events
+                         (for [event @events]
+                           ^{:key (:timestamp event)} [render-event event])])})))
+
 (defn event-component []
-  (let [events (subscribe [:events])]
-    (fn []
-      [:div.event-area
-       [:ul#events-pane.events
-        (for [event @events]
-          ^{:key (:timestamp event)} [render-event event])]
+  [:div.event-area
+       [events-pane]
        [:div.event-box
         [input-component]
-        [:button {:on-click send-message} "send"]]])))
+        [:button {:on-click send-message} "send"]]])
 
 
 (defn main-component []
@@ -86,4 +97,4 @@
     (fn []
       [:div
        [event-component]
-       (user-component @users)])))
+       [user-component @users]])))

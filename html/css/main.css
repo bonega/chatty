@@ -4,18 +4,24 @@ ul.events {
     margin: 0;
 }
 
+.event-enter {
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
+}
+.event-enter-active {
+    opacity: 1;
+}
+
 .msg, .disconnect {
     cursor: default;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 0 solid #ccc;
     box-shadow: 0 1px 0 0 white;
     overflow: auto;
     padding: 2px 0 2px 130px;
     line-height: 24px;
     white-space: -o-pre-wrap;
     word-wrap: break-word;
-    /* background-color: gray; */
 }
-
 
 .disconnect {
     color: #888;
@@ -39,7 +45,6 @@ div.complete-wrapper {
 
 ul#complete-list {
     position: absolute;
-    /* left: 43px; */
     bottom: 40px;
     top: initial;
 }

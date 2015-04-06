@@ -4,6 +4,9 @@
             [reagent.core :as reagent :refer [atom]]
             [chatty.utils :refer [human-interval re-pos starts-with?]]))
 
+(def ctg (reagent/adapt-react-class (aget js/React "addons" "CSSTransitionGroup")))
+
+
 (defn user-component [users]
   [:div.user-list
    [:ul
@@ -80,9 +83,9 @@
                                     to-bottom (- height (+ offset-height to-top))]
                                 (reset! at-bottom (zero? to-bottom)))
       :reagent-render (fn []
-                        [:ul#events-pane.events
-                         (for [event @events]
-                           ^{:key (:timestamp event)} [render-event event])])})))
+                         [ctg {:transitionName "event" :component "ul" :className "events"}
+                           (for [event @events]
+                             ^{:key (:timestamp event)} [render-event event])])})))
 
 (defn event-component []
   [:div.event-area

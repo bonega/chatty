@@ -47,7 +47,7 @@
 
 (register-handler
  :add-event
- standard-middlewares
+ trim-v
  (fn [db [event]]
    (update-in db [:events] (comp vec conj) event)))
 

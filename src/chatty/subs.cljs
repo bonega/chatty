@@ -1,6 +1,8 @@
 (ns chatty.subs
   (:require-macros [reagent.ratom :refer [reaction]])   ;; remove for v0.2.0-alpha2
-  (:require [re-frame.core :refer [register-sub]]))
+  (:require [re-frame.core :refer [register-sub
+                                   subscribe]]
+            [chatty.utils :refer [re-pos]]))
 
 (register-sub
  :events
@@ -26,3 +28,9 @@
  :time
  (fn [db _]
    (reaction (:time @db))))
+
+(register-sub
+ :complete-user
+ (fn [db _]
+   (let [text (subscribe [:input-text])]
+     (reaction (re-pos #"\B@\S*$" @text)))))

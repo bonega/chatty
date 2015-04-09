@@ -19,6 +19,7 @@
     (when (pos? (count @text))
       (dispatch [:send-message (.getTime (js/Date.))]))))
 
+
 (defn complete-user-list-component [pos comp-text text users]
   (let [f-users (filter #(starts-with? % (subs comp-text 1)) users)
         match-len (-> comp-text (subs 1) count)
@@ -26,16 +27,20 @@
     (for [user f-users]
       ^{:key user} [:li {:on-click #(dispatch [:change-input (new-text-fn user)])} user])))
 
+
 (defn complete-user-component [users text]
-  (let [[[pos comp-text]] (re-pos #"\B@\S*$" text)]
-    [:ul#complete-list {:style {:left (str (* 6 pos) "px")}}
-     nil
-     (when pos
-       (complete-user-list-component pos comp-text text users))]))
+  (let [complete-user (subscribe [:complete-user])
+        users (subscribe [:users])
+        text (subscribe [:input-text])]
+    (fn []
+      [ctg {:transitionName "complete"}
+       (let [[[pos comp-text]] @complete-user]
+         (when pos
+           [:ul#complete-list {:style {:left (str (* 6 pos) "px")}}
+            (complete-user-list-component pos comp-text @text @users)]))])))
 
 (defn message-field-component []
-  (let [text (subscribe [:input-text])
-        users (subscribe [:users])]
+  (let [text (subscribe [:input-text])]
     (reagent/create-class
      {:component-did-update #(.focus (reagent/dom-node %))
       :reagent-render
@@ -44,14 +49,6 @@
                                 :value @text
                                 :on-change #(dispatch [:change-input (-> % .-target .-value)])
                                 :onKeyUp (fn [e] (when (= 13 (.. e -keyCode)) (send-message)))}])})))
-
-(defn input-component []
-  (let [text (subscribe [:input-text])
-        users (subscribe [:users])]
-    (fn []
-      [:div.complete-wrapper
-       [complete-user-component @users @text]
-       [message-field-component]])))
 
 
 (defmulti render-event :event-type)
@@ -89,10 +86,12 @@
 
 (defn event-component []
   [:div.event-area
-       [events-pane]
-       [:div.event-box
-        [input-component]
-        [:button {:on-click send-message} "send"]]])
+   [events-pane]
+   [:div.event-box
+    [:div.complete-wrapper
+     [complete-user-component]
+     [message-field-component]]
+    [:button {:on-click send-message} "send"]]])
 
 
 (defn main-component []
